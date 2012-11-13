@@ -2916,7 +2916,8 @@ GDALDataset *HDF4ImageDataset::Open( GDALOpenInfo * poOpenInfo )
                               (long)iSphereCode );
 #endif
                     poDS->oSRS.importFromUSGS( iProjCode, iZoneCode,
-                                               adfProjParms, iSphereCode );
+                                               adfProjParms, iSphereCode,
+                                               USGS_ANGLE_RADIANS );
 
                     if ( poDS->pszProjection )
                         CPLFree( poDS->pszProjection );
@@ -3466,7 +3467,11 @@ GDALDataset *HDF4ImageDataset::Open( GDALOpenInfo * poOpenInfo )
                   poBand->dfScale =
                       CPLAtof( CSLFetchNameValue( poDS->papszLocalMetadata,
                                                   "scale_factor" ) );
-                  poBand->dfOffset = -1 * poBand->dfScale *
+                  // See #4891 regarding offset interpretation.
+                  //poBand->dfOffset = -1 * poBand->dfScale *
+                  //  CPLAtof( CSLFetchNameValue( poDS->papszLocalMetadata,
+                  //                              "add_offset" ) );
+                  poBand->dfOffset = 
                       CPLAtof( CSLFetchNameValue( poDS->papszLocalMetadata,
                                                   "add_offset" ) );
               }
