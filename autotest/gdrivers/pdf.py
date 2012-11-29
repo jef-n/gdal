@@ -1280,7 +1280,7 @@ def pdf_custom_layout():
                 'LAYER_NAME=byte_tif',
                 'EXTRA_STREAM=BT 255 0 0 rg /FTimesRoman 1 Tf 1 0 0 1 1 1 Tm (Footpage string) Tj ET',
                 'EXTRA_LAYER_NAME=Footpage_and_logo',
-                'EXTRA_IMAGES=data/byte.tif,0.5,10,0.2']
+                'EXTRA_IMAGES=data/byte.tif,0.5,0.5,0.2']
 
     src_ds = gdal.Open('data/byte.tif')
     ds = gdaltest.pdf_drv.CreateCopy('tmp/pdf_custom_layout.pdf', src_ds, options = options)
@@ -1299,6 +1299,75 @@ def pdf_custom_layout():
         if layers != ['LAYER_00_NAME=byte_tif', 'LAYER_01_NAME=Footpage_and_logo']:
             gdaltest.post_reason('did not get expected layers')
             print(layers)
+            return 'fail'
+
+    return 'success'
+
+###############################################################################
+# Test CLIPPING_EXTENT, EXTRA_RASTERS, EXTRA_RASTERS_LAYER_NAME, OFF_LAYERS, EXCLUSIVE_LAYERS options
+
+def pdf_extra_rasters():
+
+    if gdaltest.pdf_drv is None:
+        return 'skip'
+
+    subbyte = """<VRTDataset rasterXSize="10" rasterYSize="10">
+  <SRS>PROJCS["NAD27 / UTM zone 11N",GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.9786982139006,AUTHORITY["EPSG","7008"]],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433],AUTHORITY["EPSG","4267"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-117],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AUTHORITY["EPSG","26711"]]</SRS>
+  <GeoTransform>  4.4102000000000000e+05,  6.0000000000000000e+01,  0.0000000000000000e+00,  3.7510200000000000e+06,  0.0000000000000000e+00, -6.0000000000000000e+01</GeoTransform>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Area</MDI>
+  </Metadata>
+  <Metadata domain="IMAGE_STRUCTURE">
+    <MDI key="INTERLEAVE">BAND</MDI>
+  </Metadata>
+  <VRTRasterBand dataType="Byte" band="1">
+    <Metadata />
+    <ColorInterp>Gray</ColorInterp>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="1">../data/byte.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="20" RasterYSize="20" DataType="Byte" BlockXSize="20" BlockYSize="20" />
+      <SrcRect xOff="5" yOff="5" xSize="10" ySize="10" />
+      <DstRect xOff="0" yOff="0" xSize="10" ySize="10" />
+    </SimpleSource>
+  </VRTRasterBand>
+</VRTDataset>"""
+
+    f = open('tmp/subbyte.vrt', 'wt')
+    f.write(subbyte)
+    f.close()
+
+    options = [ 'MARGIN=1',
+                'DPI=300',
+                'CLIPPING_EXTENT=440780,3750180,441860,3751260',
+                'LAYER_NAME=byte_tif',
+                'EXTRA_RASTERS=tmp/subbyte.vrt',
+                'EXTRA_RASTERS_LAYER_NAME=subbyte',
+                'OFF_LAYERS=byte_tif',
+                'EXCLUSIVE_LAYERS=byte_tif,subbyte']
+
+    src_ds = gdal.Open('data/byte.tif')
+    ds = gdaltest.pdf_drv.CreateCopy('tmp/pdf_extra_rasters.pdf', src_ds, options = options)
+    ds = None
+    src_ds = None
+
+    if pdf_is_poppler():
+        ds = gdal.Open('tmp/pdf_extra_rasters.pdf')
+        cs = ds.GetRasterBand(1).Checksum()
+        layers = ds.GetMetadata_List('LAYERS')
+        ds = None
+
+    gdal.Unlink('tmp/pdf_extra_rasters.pdf')
+    os.unlink('tmp/subbyte.vrt')
+
+    if pdf_is_poppler():
+        if layers != ['LAYER_00_NAME=byte_tif', 'LAYER_01_NAME=subbyte']:
+            gdaltest.post_reason('did not get expected layers')
+            print(layers)
+            return 'fail'
+        if cs != 7926 and cs != 8177:
+            gdaltest.post_reason('bad checksum')
+            print(cs)
             return 'fail'
 
     return 'success'
@@ -1626,6 +1695,7 @@ gdaltest_list = [
     pdf_check_identity_ogc_bp,
     pdf_layers,
     pdf_custom_layout,
+    pdf_extra_rasters,
     pdf_write_ogr,
     pdf_write_ogr_with_reprojection,
     pdf_jpeg_direct_copy,

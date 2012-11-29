@@ -32,6 +32,8 @@
 #include "swq.h"
 #include "ogrsqliteregexp.h"
 
+#ifdef HAVE_SQLITE_VFS
+
 #define VIRTUAL_OGR_DYNAMIC_EXTENSION_ENABLED
 //#define DEBUG_OGR2SQLITE
 
@@ -43,8 +45,6 @@
 
 /* Declaration of sqlite3_api structure */
 SQLITE_EXTENSION_INIT1
-
-#ifdef HAVE_SQLITE_VFS
 
 /* The layout of fields is :
    0   : RegularField0
@@ -2363,6 +2363,10 @@ int OGR2SQLITE_static_register (sqlite3 * hDB, char **pzErrMsg,
     SQLITE_EXTENSION_INIT2 (pApi);
 
     *pzErrMsg = NULL;
+
+    /* Can happen if sqlite is compiled with SQLITE_OMIT_LOAD_EXTENSION (with sqlite 3.6.10 for example) */
+    if( pApi->create_module == NULL )
+        return SQLITE_ERROR;
 
     /* This is only for testing purposes. This will behave as if we had */
     /* dynamically loaded GDAL as a SQLite3 extension, except we don't need to */
