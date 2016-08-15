@@ -12,7 +12,6 @@ OBJ	=	ogrsfdriverregistrar.o ogrlayer.o ogrdatasource.o \
 CXXFLAGS :=     $(CXXFLAGS) $(SHADOW_WFLAGS) -DINST_DATA=\"$(INST_DATA)\"
 
 BASEFORMATS = \
-	-DCAD_ENABLED \
 	-DAVCBIN_ENABLED \
 	-DBNA_ENABLED \
 	-DCSV_ENABLED \
@@ -57,6 +56,10 @@ BASEFORMATS = \
 	-DVDV_ENABLED
 
 CXXFLAGS :=     $(CXXFLAGS) $(BASEFORMATS)
+
+ifeq ($(HAVE_CXX11),yes)
+CXXFLAGS :=	$(CXXFLAGS) -DCAD_ENABLED
+endif
 
 ifeq ($(HAVE_OGDI),yes)
 CXXFLAGS :=	$(CXXFLAGS) -DOGDI_ENABLED

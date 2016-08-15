@@ -1201,7 +1201,7 @@ CADGeometry *DWGFileR2000::getGeometry(long geomhandle, long blockrefhandle)
         CADAttribObject * cadAttrib = static_cast<CADAttribObject*>(
                 readedObject.get() );
 
-        attrib->setPosition (cadAttrib->vertInsetionPoint);
+        attrib->setPosition (cadAttrib->vertInsertionPoint);
         attrib->setColor (cadAttrib->stCed.nCMColor);
         attrib->setExtrusion (cadAttrib->vectExtrusion);
         attrib->setRotationAngle (cadAttrib->dfRotationAng);
@@ -1224,7 +1224,7 @@ CADGeometry *DWGFileR2000::getGeometry(long geomhandle, long blockrefhandle)
         CADAttdefObject * cadAttrib = static_cast<CADAttdefObject*>(
                 readedObject.get() );
 
-        attdef->setPosition (cadAttrib->vertInsetionPoint);
+        attdef->setPosition (cadAttrib->vertInsertionPoint);
         attdef->setColor (cadAttrib->stCed.nCMColor);
         attdef->setExtrusion (cadAttrib->vectExtrusion);
         attdef->setRotationAngle (cadAttrib->dfRotationAng);
@@ -1328,7 +1328,7 @@ CADGeometry *DWGFileR2000::getGeometry(long geomhandle, long blockrefhandle)
                     readedObject.get());
 
         text->setColor (cadText->stCed.nCMColor);
-        text->setPosition (cadText->vertInsetionPoint);
+        text->setPosition (cadText->vertInsertionPoint);
         text->setTextValue (cadText->sTextValue);
         text->setRotationAngle (cadText->dfRotationAng);
         text->setObliqueAngle (cadText->dfObliqueAng);
@@ -2024,18 +2024,18 @@ CADTextObject *DWGFileR2000::getText(long dObjectSize,
     if ( !( text->DataFlags & 0x01 ) )
         text->dfElevation = ReadRAWDOUBLE (pabyInput, nBitOffsetFromStart);
 
-    CADVector vertInsetionPoint = ReadRAWVector (pabyInput,
+    CADVector vertInsertionPoint = ReadRAWVector (pabyInput,
                                                  nBitOffsetFromStart);
 
-    text->vertInsetionPoint = vertInsetionPoint;
+    text->vertInsertionPoint = vertInsertionPoint;
 
     if ( !( text->DataFlags & 0x02 ) )
     {
         double x, y;
         x = ReadBITDOUBLEWD (pabyInput,
-                             nBitOffsetFromStart, vertInsetionPoint.getX());
+                             nBitOffsetFromStart, vertInsertionPoint.getX());
         y = ReadBITDOUBLEWD (pabyInput,
-                             nBitOffsetFromStart, vertInsetionPoint.getY());
+                             nBitOffsetFromStart, vertInsertionPoint.getY());
         CADVector vertAlignmentPoint(x, y);
         text->vertAlignmentPoint = vertAlignmentPoint;
     }
@@ -2243,15 +2243,15 @@ CADAttribObject *DWGFileR2000::getAttributes(long dObjectSize,
 
     double x, y;
 
-    CADVector vertInsetionPoint = ReadRAWVector(pabyInput, nBitOffsetFromStart);
-    attrib->vertInsetionPoint = vertInsetionPoint;
+    CADVector vertInsertionPoint = ReadRAWVector(pabyInput, nBitOffsetFromStart);
+    attrib->vertInsertionPoint = vertInsertionPoint;
 
     if ( !(attrib->DataFlags & 0x02) )
     {
         x = ReadBITDOUBLEWD (pabyInput, nBitOffsetFromStart,
-                             vertInsetionPoint.getX());
+                             vertInsertionPoint.getX());
         y = ReadBITDOUBLEWD (pabyInput, nBitOffsetFromStart,
-                             vertInsetionPoint.getY());
+                             vertInsertionPoint.getY());
         CADVector vertAlignmentPoint(x, y);
         attrib->vertAlignmentPoint = vertAlignmentPoint;
     }
@@ -2317,15 +2317,15 @@ CADAttdefObject *DWGFileR2000::getAttributesDefn(long dObjectSize,
     if ( !(attdef->DataFlags & 0x01) )
         attdef->dfElevation = ReadRAWDOUBLE (pabyInput, nBitOffsetFromStart);
 
-    CADVector vertInsetionPoint = ReadRAWVector(pabyInput, nBitOffsetFromStart);
-    attdef->vertInsetionPoint = vertInsetionPoint;
+    CADVector vertInsertionPoint = ReadRAWVector(pabyInput, nBitOffsetFromStart);
+    attdef->vertInsertionPoint = vertInsertionPoint;
 
     if ( !(attdef->DataFlags & 0x02) )
     {
         double x = ReadBITDOUBLEWD (pabyInput, nBitOffsetFromStart,
-                                    vertInsetionPoint.getX());
+                                    vertInsertionPoint.getX());
         double y = ReadBITDOUBLEWD (pabyInput, nBitOffsetFromStart,
-                                    vertInsetionPoint.getY());
+                                    vertInsertionPoint.getY());
         CADVector vertAlignmentPoint(x, y);
         attdef->vertAlignmentPoint = vertAlignmentPoint;
     }

@@ -300,7 +300,7 @@ public:
     CADTextObject();
     unsigned char   DataFlags;
     double dfElevation;
-    CADVector vertInsetionPoint;
+    CADVector vertInsertionPoint;
     CADVector vertAlignmentPoint;
     CADVector vectExtrusion;
     double dfThickness;
@@ -325,7 +325,7 @@ public:
     CADAttribObject();
     unsigned char   DataFlags;
     double dfElevation;
-    CADVector vertInsetionPoint;
+    CADVector vertInsertionPoint;
     CADVector vertAlignmentPoint;
     CADVector vectExtrusion;
     double dfThickness;

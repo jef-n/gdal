@@ -997,7 +997,7 @@ static DGNElemCore *DGNProcessElement( DGNInfo *psDGN, int nType, int nLevel )
 /*      in "capture all" mode, record the complete binary image of      */
 /*      the element.                                                    */
 /* -------------------------------------------------------------------- */
-    if( psElement->stype == DGNST_CORE
+    if( ( psElement && psElement->stype == DGNST_CORE )
         || (psDGN->options & DGNO_CAPTURE_RAW_DATA) )
     {
         psElement->raw_bytes = psDGN->nElemBytes;
